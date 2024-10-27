@@ -562,6 +562,12 @@ export class Viewer {
 			lightFolder.addColor(this.state, 'directColor'),
 		].forEach((ctrl) => ctrl.onChange(() => this.updateLights()));
 
+		 // New Color Folder
+		 const colorFolder = gui.addFolder('Material Color');
+		 this.state.materialColor = '#ffffff'; // Default material color
+	 
+		 const materialColorCtrl = colorFolder.addColor(this.state, 'materialColor');
+		 materialColorCtrl.onChange((color) => this.updateMaterialColor(color));
 		// Animation controls.
 		this.animFolder = gui.addFolder('Animation');
 		this.animFolder.domElement.style.display = 'none';
@@ -593,7 +599,18 @@ export class Viewer {
 		guiWrap.appendChild(gui.domElement);
 		gui.open();
 	}
-
+	updateMaterialColor(color) {
+		if (!this.content) return; // No model loaded yet
+	
+		const hexColor = new Color(color); // Convert color string to THREE.Color
+	
+		traverseMaterials(this.content, (material) => {
+			if (material.isMeshStandardMaterial || material.isMeshPhongMaterial || material.isMeshBasicMaterial) {
+				material.color.set(hexColor); // Set the material's color to the selected color
+			}
+		});
+	}
+	
 	updateGUI() {
 		this.cameraFolder.domElement.style.display = 'none';
 
